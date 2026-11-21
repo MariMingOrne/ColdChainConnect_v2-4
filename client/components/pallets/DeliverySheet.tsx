@@ -192,21 +192,24 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
                 border: 0 !important;
                 border-radius: 0 !important;
               }
+              body:has(#delivery-sheet) [data-radix-dialog-content] > button { display: none !important; }
               #delivery-sheet {
                 position: relative !important;
                 width: 100% !important;
-                max-width: 7.5in;
-                margin: 0 auto !important;
+                max-width: none !important;
+                margin: 0 !important;
                 max-height: none !important;
                 overflow: visible !important;
-                padding: 0.15in !important;
+                padding: 0 !important;
+                border: 0 !important;
+                border-radius: 0 !important;
                 background: #fff !important;
                 color: #111 !important;
               }
               .sheet-page.letter-page {
                 display: grid !important;
                 grid-template-columns: 1fr 1fr;
-                grid-template-rows: 1fr 1fr;
+                grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
                 gap: 0.12in;
                 height: 10.2in;
                 break-after: page;
@@ -218,7 +221,12 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
                 overflow: hidden;
                 min-width: 0;
               }
-              .sheet-page.letter-page .sheet-header img { height: 0.45in !important; }
+              .sheet-page.letter-page .sheet-header img { height: 0.4in !important; }
+              .sheet-page.letter-page .label-card { padding: 0.04in !important; gap: 0.02in !important; }
+              .sheet-page.letter-page .label-card img { height: 0.5in !important; width: auto !important; max-width: 100%; }
+              .sheet-page.letter-page .pick-list { margin-top: 0.08in !important; }
+              .sheet-page.letter-page .label-section { margin-top: 0.08in !important; }
+              .sheet-page.letter-page .label-section h2 { margin-bottom: 0.02in !important; }
               .sheet-page.letter-page .text-lg { font-size: 11pt; }
               .sheet-page.letter-page .text-xs, .sheet-page.letter-page .text-2xs { font-size: 7pt; }
               .no-print { display: none !important; }
