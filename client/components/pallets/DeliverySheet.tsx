@@ -131,7 +131,7 @@ function SheetSection({ section, batches }: { section: DeliverySheetSection; bat
 }
 
 const SHEETS_PER_PAGE = 6;
-const CARDS_PER_PAGE = 4;
+const CARDS_PER_PAGE = 9;
 
 export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
   const [barcodes, setBarcodes] = useState<Record<string, string>>({});
@@ -260,9 +260,9 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
               .sheet-page.letter-page .text-sm { font-size: 7.5pt; }
               .card-page {
                 display: grid !important;
-                grid-template-columns: repeat(2, minmax(0, 5in));
-                grid-template-rows: repeat(2, 3in);
-                gap: 0.25in;
+                grid-template-columns: repeat(3, minmax(0, 3.4in));
+                grid-template-rows: repeat(3, 2.04in);
+                gap: 0.2in;
                 justify-content: center;
                 align-content: center;
                 width: 100%;
@@ -271,14 +271,17 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
               }
               .card-page:last-child { break-after: auto; }
               .card-page .label-card {
-                width: 5in !important;
-                height: 3in !important;
+                width: 3.4in !important;
+                height: 2.04in !important;
                 border: 1px solid #000 !important;
-                padding: 0.12in !important;
+                padding: 0.08in !important;
+                gap: 0.03in !important;
                 box-sizing: border-box;
                 justify-content: center;
               }
-              .card-page .label-card img { height: 1in !important; width: 85% !important; max-width: none !important; object-fit: fill; }
+              .card-page .label-card img { height: 0.7in !important; width: 85% !important; max-width: none !important; object-fit: fill; }
+              .card-page .text-xs { font-size: 6.5pt; }
+              .card-page .text-2xs { font-size: 5.5pt; }
               .no-print { display: none !important; }
               .label-card { break-inside: avoid; color: #111 !important; background: #fff !important; }
             }
