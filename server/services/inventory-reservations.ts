@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, gte, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { applyReservationsToSourceItems } from "./reservation-allocation";
-import { todayIsoDate } from "./schedule-date";
+import { todayInManila } from "../../shared/api";
 import {
   batch_pallets,
   booking_items,
@@ -33,7 +33,7 @@ export async function getReservedUnitsByProduct(executor: any, productIds?: stri
 }
 
 function notExpiredPalletItem() {
-  return or(isNull(pallet_items.expiration_date), gte(pallet_items.expiration_date, todayIsoDate()));
+  return or(isNull(pallet_items.expiration_date), gte(pallet_items.expiration_date, todayInManila()));
 }
 
 export async function getStockUnitsByProduct(executor: any, productIds?: string[]): Promise<Map<string, number>> {
@@ -134,7 +134,7 @@ export async function getAvailableUnitsBySource(
     new Map<string, number>(palletRows.map((row: { sourceItemId: string; quantity: number }) => [row.sourceItemId, row.quantity])),
     reservedByProduct,
   );
-  const today = todayIsoDate();
+  const today = todayInManila();
   for (const item of stockItems) {
     if (item.expiration_date && item.expiration_date < today) availableBySource.set(item.id, 0);
   }
