@@ -85,7 +85,7 @@ export function PalletDetail({
               disabled={!order}
               variant="outline"
             >
-              Print delivery sheet
+              Shipping label
             </Button>
             {canChangeStatus && <div className="flex items-center gap-2">
               <Button
