@@ -498,9 +498,13 @@ export function Preparation() {
                         {/* After marked prepared: show badge + Undo */}
                         {isPrepared && (
                           <>
-                            <span className="px-3 py-2 text-xs font-semibold text-green bg-green/10 rounded-lg">
+                            <Button
+                              onClick={() => navigate(`/booking-dispatch/inventory?order=${order.id}`)}
+                              variant="success"
+                              size="sm"
+                            >
                               ✓ Prepared
-                            </span>
+                            </Button>
                           </>
                         )}
                       </div>
