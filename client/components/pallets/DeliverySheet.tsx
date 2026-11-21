@@ -166,15 +166,15 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
             @media print {
               @page {
                 size: ${cardMode ? "5in 3in" : "letter"};
-                margin: ${cardMode ? "0.15in" : "0.35in"};
+                margin: 0;
               }
               html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
               body > *:not(:has(#delivery-sheet)) { display: none !important; }
-              body:has(#delivery-sheet) [data-radix-dialog-overlay] { display: none !important; }
-              body:has(#delivery-sheet) [data-radix-dialog-content] {
-                position: static !important; display: block !important; width: auto !important; max-width: none !important;
+              body:has(#delivery-sheet) .fixed.inset-0 { display: none !important; }
+              body:has(#delivery-sheet) [role="dialog"] {
+                position: static !important; display: block !important; width: 100% !important; max-width: none !important;
                 max-height: none !important; overflow: visible !important; transform: none !important; border: 0 !important;
-                padding: 0 !important; box-shadow: none !important; background: transparent !important;
+                padding: 0 !important; margin: 0 !important; box-shadow: none !important; background: transparent !important;
               }
               .delivery-sheet-overlay {
                 position: static !important;
@@ -192,7 +192,7 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
                 border: 0 !important;
                 border-radius: 0 !important;
               }
-              body:has(#delivery-sheet) [data-radix-dialog-content] > button { display: none !important; }
+              body:has(#delivery-sheet) [role="dialog"] > button { display: none !important; }
               #delivery-sheet {
                 position: relative !important;
                 width: 100% !important;
@@ -210,14 +210,17 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
                 display: grid !important;
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-                gap: 0.12in;
-                height: 10.2in;
+                gap: 0.15in;
+                box-sizing: border-box;
+                padding: 0.4in;
+                height: 10.95in;
                 break-after: page;
               }
               .sheet-page.letter-page:last-child { break-after: auto; }
               .sheet-page.letter-page .order-section {
                 border: 1px solid #000;
-                padding: 0.08in;
+                padding: 0.1in;
+                box-sizing: border-box;
                 overflow: hidden;
                 min-width: 0;
               }
@@ -227,6 +230,7 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
               .sheet-page.letter-page .pick-list { margin-top: 0.08in !important; }
               .sheet-page.letter-page .label-section { margin-top: 0.08in !important; }
               .sheet-page.letter-page .label-section h2 { margin-bottom: 0.02in !important; }
+              .sheet-page.letter-page .label-grid { grid-template-columns: 1fr 1fr !important; gap: 0.05in !important; }
               .sheet-page.letter-page .text-lg { font-size: 11pt; }
               .sheet-page.letter-page .text-xs, .sheet-page.letter-page .text-2xs { font-size: 7pt; }
               .no-print { display: none !important; }
@@ -237,8 +241,9 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
               .card-mode .label-grid { display: block !important; }
               .card-mode .label-card {
                 border: none !important;
-                padding: 0 !important;
-                height: 2.7in;
+                padding: 0.15in !important;
+                box-sizing: border-box;
+                height: 3in;
                 break-after: page;
                 justify-content: center;
               }
