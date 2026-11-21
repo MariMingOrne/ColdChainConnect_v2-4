@@ -19,6 +19,8 @@ function renderDetail(canChangeStatus: boolean) {
       pallet={pallet}
       order={null}
       customer={null}
+      delivery={null}
+      truck={null}
       batches={[]}
       getProductName={(id) => id}
       canChangeStatus={canChangeStatus}
