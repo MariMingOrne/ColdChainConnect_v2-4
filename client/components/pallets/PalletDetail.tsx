@@ -124,11 +124,12 @@ export function PalletDetail({
           <div>
             <p className="text-xs font-semibold text-muted-foreground">Customer</p>
             <p className="mt-1 font-medium text-foreground">{customer?.store_name ?? "Unknown customer"}</p>
+            <p className="mt-3 text-xs font-semibold text-muted-foreground">District</p>
+            <p className="mt-1 text-sm text-foreground">{customer?.district ?? "—"}</p>
           </div>
           <div className="md:col-span-1 xl:col-span-2">
             <p className="text-xs font-semibold text-muted-foreground">Delivery address</p>
             <p className="mt-1 text-sm text-foreground">{customer ? formatCustomerAddress(customer) : "—"}</p>
-            <p className="mt-1 text-xs text-muted-foreground">District: {customer?.district ?? "—"}</p>
           </div>
           <div>
             <p className="text-xs font-semibold text-muted-foreground">Order</p>
