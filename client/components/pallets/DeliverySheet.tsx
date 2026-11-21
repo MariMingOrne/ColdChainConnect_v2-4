@@ -122,10 +122,15 @@ function SheetSection({
   );
 }
 
+const SHEETS_PER_PAGE = 4;
+
 export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
   const [barcodes, setBarcodes] = useState<Record<string, string>>({});
   const [cardMode, setCardMode] = useState(true);
   const allPallets = useMemo(() => sections.flatMap((section) => section.pallets), [sections]);
+  const sheetPages = Array.from({ length: Math.ceil(sections.length / SHEETS_PER_PAGE) }, (_, index) =>
+    sections.slice(index * SHEETS_PER_PAGE, (index + 1) * SHEETS_PER_PAGE),
+  );
 
   useEffect(() => {
     setBarcodes(Object.fromEntries(allPallets.map((pallet) => [pallet.id, barcodeDataUrl(pallet.id)])));
@@ -198,7 +203,24 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
                 background: #fff !important;
                 color: #111 !important;
               }
-              .order-section + .order-section { break-before: page; }
+              .sheet-page.letter-page {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 0.12in;
+                height: 10.2in;
+                break-after: page;
+              }
+              .sheet-page.letter-page:last-child { break-after: auto; }
+              .sheet-page.letter-page .order-section {
+                border: 1px solid #000;
+                padding: 0.08in;
+                overflow: hidden;
+                min-width: 0;
+              }
+              .sheet-page.letter-page .sheet-header img { height: 0.45in !important; }
+              .sheet-page.letter-page .text-lg { font-size: 11pt; }
+              .sheet-page.letter-page .text-xs, .sheet-page.letter-page .text-2xs { font-size: 7pt; }
               .no-print { display: none !important; }
               .label-card { break-inside: avoid; color: #111 !important; background: #fff !important; }
               .card-mode .sheet-header, .card-mode .pick-list { display: none !important; }
@@ -216,13 +238,17 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
             }
           `}</style>
 
-          {sections.map((section) => (
-            <SheetSection
-              key={section.order.id}
-              section={section}
-              batches={batches}
-              barcodes={barcodes}
-            />
+          {sheetPages.map((page, pageIndex) => (
+            <div key={pageIndex} className={`sheet-page ${cardMode ? "" : "letter-page"}`}>
+              {page.map((section) => (
+                <SheetSection
+                  key={section.order.id}
+                  section={section}
+                  batches={batches}
+                  barcodes={barcodes}
+                />
+              ))}
+            </div>
           ))}
         </div>
       </div>
