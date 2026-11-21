@@ -14,7 +14,7 @@ import { PalletStats } from "@/components/pallets/PalletStats";
 import { PalletToolbar, PalletStatusFilter } from "@/components/pallets/PalletToolbar";
 import { PalletTable, PalletEntry } from "@/components/pallets/PalletTable";
 import { PalletDetail } from "@/components/pallets/PalletDetail";
-import { DeliverySheet } from "@/components/pallets/DeliverySheet";
+import { DeliverySheet, DeliverySheetSection } from "@/components/pallets/DeliverySheet";
 import { DatePresetFilter, isInDatePreset } from "@/components/pallets/palletUtils";
 import { confirmAction } from "@/lib/confirm";
 
@@ -36,8 +36,7 @@ export function BookingInventory() {
   const [deliveries, setDeliveries] = useState<DeliveryWithItems[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [batches, setBatches] = useState<InventoryBatch[]>([]);
-  const [sheetOrder, setSheetOrder] = useState<Booking | null>(null);
-  const [sheetPalletIds, setSheetPalletIds] = useState<Set<string> | null>(null);
+  const [sheetSections, setSheetSections] = useState<DeliverySheetSection[] | null>(null);
   const [checkedPalletIds, setCheckedPalletIds] = useState<Set<string>>(() => new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("order") ?? "");
@@ -236,8 +235,12 @@ export function BookingInventory() {
   const selected = entries.find((entry) => entry.pallet.id === selectedPalletId) ?? null;
 
   const checkedPallets = visiblePallets.filter((pallet) => checkedPalletIds.has(pallet.id));
-  const checkedOrderIds = new Set(checkedPallets.map((pallet) => pallet.order_id));
-  const shippingOrder = checkedOrderIds.size === 1 ? bookings.find((b) => b.id === [...checkedOrderIds][0]) ?? null : null;
+
+  const buildSheetSections = (palletList: Pallet[]): DeliverySheetSection[] =>
+    bookings.flatMap((order) => {
+      const orderPallets = palletList.filter((pallet) => pallet.order_id === order.id);
+      return orderPallets.length ? [{ order, pallets: orderPallets }] : [];
+    });
 
   const setChecked = (palletIds: string[], checked: boolean) =>
     setCheckedPalletIds((current) => {
@@ -249,11 +252,7 @@ export function BookingInventory() {
       return next;
     });
 
-  const openShippingLabels = () => {
-    if (!shippingOrder) return;
-    setSheetPalletIds(new Set(checkedPallets.map((pallet) => pallet.id)));
-    setSheetOrder(shippingOrder);
-  };
+  const openShippingLabels = () => setSheetSections(buildSheetSections(checkedPallets));
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -278,8 +277,8 @@ export function BookingInventory() {
           {isAdmin && (
             <Button
               onClick={openShippingLabels}
-              disabled={!shippingOrder}
-              title={shippingOrder ? undefined : "Select pallets from one order to print their shipping labels"}
+              disabled={checkedPallets.length === 0}
+              title={checkedPallets.length === 0 ? "Select pallets to print their shipping labels" : undefined}
               variant="outline"
             >
               <Printer size={16} /> Shipping label ({checkedPallets.length})
@@ -303,10 +302,11 @@ export function BookingInventory() {
           getProductName={getProductName}
           canChangeStatus={canUpdatePalletStatus}
           onStatusChange={(status) => handleStatusChange(selected.pallet.id, status)}
-          onPrintSheet={() => {
-            setSheetPalletIds(null);
-            setSheetOrder(bookings.find((b) => b.id === selected.pallet.order_id) ?? null);
-          }}
+          onPrintSheet={() =>
+            setSheetSections(
+              buildSheetSections(pallets.filter((pallet) => pallet.order_id === selected.pallet.order_id)),
+            )
+          }
           isUpdatingStatus={isUpdatingStatus}
           onBack={() => setSelectedPalletId(null)}
         />
@@ -369,14 +369,9 @@ export function BookingInventory() {
 
     </div>
   
-      {sheetOrder && (
-        <PageDialog onClose={() => setSheetOrder(null)}>
-          <DeliverySheet
-            order={sheetOrder}
-            pallets={pallets.filter((pallet) => pallet.order_id === sheetOrder.id && (!sheetPalletIds || sheetPalletIds.has(pallet.id)))}
-            batches={batches}
-            onClose={() => setSheetOrder(null)}
-          />
+      {sheetSections && (
+        <PageDialog onClose={() => setSheetSections(null)}>
+          <DeliverySheet sections={sheetSections} batches={batches} />
         </PageDialog>
       )}
     </>
