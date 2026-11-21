@@ -94,18 +94,15 @@ export function DeliverySheet({ order, pallets, batches, onClose }: DeliveryShee
                 margin: ${cardMode ? "0.15in" : "0.35in"};
               }
               html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
-              body * { visibility: hidden !important; }
+              body > *:not(:has(#delivery-sheet)) { display: none !important; }
               body:has(#delivery-sheet) [data-radix-dialog-overlay] { display: none !important; }
               body:has(#delivery-sheet) [data-radix-dialog-content] {
                 position: static !important; display: block !important; width: auto !important; max-width: none !important;
                 max-height: none !important; overflow: visible !important; transform: none !important; border: 0 !important;
                 padding: 0 !important; box-shadow: none !important; background: transparent !important;
               }
-              .delivery-sheet-overlay, .delivery-sheet-overlay * { visibility: visible !important; }
               .delivery-sheet-overlay {
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
+                position: static !important;
                 display: block !important;
                 width: 100% !important;
                 padding: 0 !important;

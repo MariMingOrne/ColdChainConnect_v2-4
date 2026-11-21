@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useAutoRefresh } from "@/hooks/useAutoRefresh";
-import { Package } from "lucide-react";
+import { Package, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Pallet, Booking, Customer, Product, Truck, Invoice, Delivery, DeliveryItem, InventoryBatch, formatCustomerAddress } from "@shared/api";
 import { useAuth } from "../../hooks/useAuth";
@@ -239,11 +239,13 @@ export function BookingInventory() {
   const checkedOrderIds = new Set(checkedPallets.map((pallet) => pallet.order_id));
   const shippingOrder = checkedOrderIds.size === 1 ? bookings.find((b) => b.id === [...checkedOrderIds][0]) ?? null : null;
 
-  const toggleChecked = (palletId: string) =>
+  const setChecked = (palletIds: string[], checked: boolean) =>
     setCheckedPalletIds((current) => {
       const next = new Set(current);
-      if (next.has(palletId)) next.delete(palletId);
-      else next.add(palletId);
+      for (const id of palletIds) {
+        if (checked) next.add(id);
+        else next.delete(id);
+      }
       return next;
     });
 
@@ -273,14 +275,14 @@ export function BookingInventory() {
               {isUpdatingStatus ? "Advancing…" : `Advance ${advanceableCount} to next status`}
             </Button>
           )}
-          {isAdmin && checkedPallets.length > 0 && (
+          {isAdmin && (
             <Button
               onClick={openShippingLabels}
               disabled={!shippingOrder}
-              title={shippingOrder ? undefined : "Select pallets from one order to print their shipping label"}
+              title={shippingOrder ? undefined : "Select pallets from one order to print their shipping labels"}
               variant="outline"
             >
-              Shipping label ({checkedPallets.length})
+              <Printer size={16} /> Shipping label ({checkedPallets.length})
             </Button>
           )}
         </div>
@@ -356,7 +358,7 @@ export function BookingInventory() {
                     entries={group.entries}
                     onSelect={setSelectedPalletId}
                     checkedIds={checkedPalletIds}
-                    onToggleChecked={toggleChecked}
+                    onSetChecked={setChecked}
                   />
                 </section>
               ))}
