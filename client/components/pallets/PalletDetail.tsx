@@ -6,7 +6,7 @@ import { ArrowLeft, ChevronDown, ChevronRight, MoreVertical } from "lucide-react
 import { Booking, Customer, InventoryBatch, Pallet, formatCustomerAddress, totalDiscountRate } from "@shared/api";
 import { Card } from "@/components/ui/card";
 import { Table } from "@/components/ui/table";
-import { batchSummary, formatMoney, groupPalletItemsByProduct, palletTotal, palletStatusOptions } from "./palletUtils";
+import { formatMoney, groupPalletItemsByProduct, palletTotal, palletStatusOptions } from "./palletUtils";
 import { PalletStatusBadge } from "./PalletTable";
 import { PalletBatchBreakdown } from "./PalletBatchBreakdown";
 
@@ -128,6 +128,7 @@ export function PalletDetail({
           <div className="md:col-span-1 xl:col-span-2">
             <p className="text-xs font-semibold text-muted-foreground">Delivery address</p>
             <p className="mt-1 text-sm text-foreground">{customer ? formatCustomerAddress(customer) : "—"}</p>
+            <p className="mt-1 text-xs text-muted-foreground">District: {customer?.district ?? "—"}</p>
           </div>
           <div>
             <p className="text-xs font-semibold text-muted-foreground">Order</p>
@@ -164,7 +165,6 @@ export function PalletDetail({
                           {isExpanded ? <ChevronDown size={16} className="mt-0.5 shrink-0" /> : <ChevronRight size={16} className="mt-0.5 shrink-0" />}
                           <span>
                             <span className="block font-medium text-foreground">{getProductName(group.productId)}</span>
-                            <span className="block text-xs text-muted-foreground">{batchSummary(group.batches)}</span>
                           </span>
                         </button>
                       </td>
