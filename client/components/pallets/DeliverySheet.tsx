@@ -27,6 +27,15 @@ function barcodeDataUrl(value: string) {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(svg))}`;
 }
 
+function orderLabels(order: Booking) {
+  return {
+    storeName: order.customer?.store_name ?? "Customer",
+    deliveryDate: order.prepared_delivery_date
+      ? new Date(order.prepared_delivery_date).toLocaleDateString()
+      : "Not scheduled",
+  };
+}
+
 function usePickLines(section: DeliverySheetSection, batches: InventoryBatch[]) {
   return useMemo<PickLine[]>(() => {
     const batchNameByItemId = new Map(
@@ -52,6 +61,33 @@ function usePickLines(section: DeliverySheetSection, batches: InventoryBatch[]) 
   }, [batches, section]);
 }
 
+function PalletLabel({
+  pallet,
+  index,
+  total,
+  storeName,
+  deliveryDate,
+  barcode,
+}: {
+  pallet: Pallet;
+  index: number;
+  total: number;
+  storeName: string;
+  deliveryDate: string;
+  barcode?: string;
+}) {
+  const units = (pallet.items ?? []).reduce((sum, item) => sum + item.qty_units, 0);
+  return (
+    <div className="label-card flex flex-col items-center gap-1 border border-black p-2 text-center">
+      <p className="text-xs font-bold">Pallet {index + 1} of {total} · {units} units</p>
+      <p className="text-xs">{storeName}</p>
+      <p className="text-2xs">Delivery: {deliveryDate}</p>
+      {barcode && <img src={barcode} alt={`Barcode for pallet ${index + 1}`} className="h-auto w-full object-contain" />}
+      <p className="font-mono text-2xs">{pallet.id}</p>
+    </div>
+  );
+}
+
 function SheetSection({
   section,
   batches,
@@ -64,10 +100,7 @@ function SheetSection({
   const { order, pallets } = section;
   const pickLines = usePickLines(section, batches);
   const orderBarcode = useMemo(() => barcodeDataUrl(order.id), [order.id]);
-  const deliveryDate = order.prepared_delivery_date
-    ? new Date(order.prepared_delivery_date).toLocaleDateString()
-    : "Not scheduled";
-  const storeName = order.customer?.store_name ?? "Customer";
+  const { storeName, deliveryDate } = orderLabels(order);
 
   return (
     <div className="order-section">
@@ -104,18 +137,17 @@ function SheetSection({
       <section className="label-section mt-4">
         <h2 className="mb-1 text-sm font-bold">Pallet Labels</h2>
         <div className="label-grid grid grid-cols-1 gap-2">
-          {pallets.map((pallet, index) => {
-            const units = (pallet.items ?? []).reduce((sum, item) => sum + item.qty_units, 0);
-            return (
-              <div key={pallet.id} className="label-card flex flex-col items-center gap-1 border border-black p-2 text-center">
-                <p className="text-xs font-bold">Pallet {index + 1} of {pallets.length} · {units} units</p>
-                <p className="text-xs">{storeName}</p>
-                <p className="text-2xs">Delivery: {deliveryDate}</p>
-                {barcodes[pallet.id] && <img src={barcodes[pallet.id]} alt={`Barcode for pallet ${index + 1}`} className="h-auto w-full object-contain" />}
-                <p className="font-mono text-2xs">{pallet.id}</p>
-              </div>
-            );
-          })}
+          {pallets.map((pallet, index) => (
+            <PalletLabel
+              key={pallet.id}
+              pallet={pallet}
+              index={index}
+              total={pallets.length}
+              storeName={storeName}
+              deliveryDate={deliveryDate}
+              barcode={barcodes[pallet.id]}
+            />
+          ))}
         </div>
       </section>
     </div>
@@ -123,6 +155,7 @@ function SheetSection({
 }
 
 const SHEETS_PER_PAGE = 4;
+const CARDS_PER_PAGE = 4;
 
 export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
   const [barcodes, setBarcodes] = useState<Record<string, string>>({});
@@ -130,6 +163,23 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
   const allPallets = useMemo(() => sections.flatMap((section) => section.pallets), [sections]);
   const sheetPages = Array.from({ length: Math.ceil(sections.length / SHEETS_PER_PAGE) }, (_, index) =>
     sections.slice(index * SHEETS_PER_PAGE, (index + 1) * SHEETS_PER_PAGE),
+  );
+  const cards = useMemo(
+    () =>
+      sections.flatMap((section) => {
+        const { storeName, deliveryDate } = orderLabels(section.order);
+        return section.pallets.map((pallet, index) => ({
+          pallet,
+          index,
+          total: section.pallets.length,
+          storeName,
+          deliveryDate,
+        }));
+      }),
+    [sections],
+  );
+  const cardPages = Array.from({ length: Math.ceil(cards.length / CARDS_PER_PAGE) }, (_, index) =>
+    cards.slice(index * CARDS_PER_PAGE, (index + 1) * CARDS_PER_PAGE),
   );
 
   useEffect(() => {
@@ -161,11 +211,11 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
           </div>
         </div>
 
-        <div id="delivery-sheet" className={`overflow-y-auto rounded-2xl border border-border bg-white p-5 font-sans text-black ${cardMode ? "card-mode" : ""}`}>
+        <div id="delivery-sheet" className="overflow-y-auto rounded-2xl border border-border bg-white p-5 font-sans text-black">
           <style>{`
             @media print {
               @page {
-                size: ${cardMode ? "5in 3in" : "letter"};
+                size: ${cardMode ? "letter landscape" : "letter"};
                 margin: 0;
               }
               html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
@@ -176,6 +226,7 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
                 max-height: none !important; overflow: visible !important; transform: none !important; border: 0 !important;
                 padding: 0 !important; margin: 0 !important; box-shadow: none !important; background: transparent !important;
               }
+              body:has(#delivery-sheet) [role="dialog"] > button { display: none !important; }
               .delivery-sheet-overlay {
                 position: static !important;
                 display: block !important;
@@ -192,7 +243,6 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
                 border: 0 !important;
                 border-radius: 0 !important;
               }
-              body:has(#delivery-sheet) [role="dialog"] > button { display: none !important; }
               #delivery-sheet {
                 position: relative !important;
                 width: 100% !important;
@@ -233,36 +283,60 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
               .sheet-page.letter-page .label-grid { grid-template-columns: 1fr 1fr !important; gap: 0.05in !important; }
               .sheet-page.letter-page .text-lg { font-size: 11pt; }
               .sheet-page.letter-page .text-xs, .sheet-page.letter-page .text-2xs { font-size: 7pt; }
-              .no-print { display: none !important; }
-              .label-card { break-inside: avoid; color: #111 !important; background: #fff !important; }
-              .card-mode .sheet-header, .card-mode .pick-list { display: none !important; }
-              .card-mode .label-section { margin-top: 0 !important; }
-              .card-mode .label-section h2 { display: none; }
-              .card-mode .label-grid { display: block !important; }
-              .card-mode .label-card {
-                border: none !important;
+              .card-page {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 5in));
+                grid-template-rows: repeat(2, 3in);
+                gap: 0.25in;
+                justify-content: center;
+                align-content: center;
+                width: 100%;
+                height: 8.5in;
+                break-after: page;
+              }
+              .card-page:last-child { break-after: auto; }
+              .card-page .label-card {
+                width: 5in !important;
+                height: 3in !important;
+                border: 0 !important;
                 padding: 0.15in !important;
                 box-sizing: border-box;
-                height: 3in;
-                break-after: page;
                 justify-content: center;
               }
-              .card-mode .label-card:last-child { break-after: auto; }
+              .card-page .label-card img { height: 1.5in !important; width: auto !important; max-width: 100%; }
+              .no-print { display: none !important; }
+              .label-card { break-inside: avoid; color: #111 !important; background: #fff !important; }
             }
           `}</style>
 
-          {sheetPages.map((page, pageIndex) => (
-            <div key={pageIndex} className={`sheet-page ${cardMode ? "" : "letter-page"}`}>
-              {page.map((section) => (
-                <SheetSection
-                  key={section.order.id}
-                  section={section}
-                  batches={batches}
-                  barcodes={barcodes}
-                />
+          {cardMode
+            ? cardPages.map((page, pageIndex) => (
+                <div key={pageIndex} className="card-page grid grid-cols-2 gap-4">
+                  {page.map((card) => (
+                    <PalletLabel
+                      key={card.pallet.id}
+                      pallet={card.pallet}
+                      index={card.index}
+                      total={card.total}
+                      storeName={card.storeName}
+                      deliveryDate={card.deliveryDate}
+                      barcode={barcodes[card.pallet.id]}
+                    />
+                  ))}
+                </div>
+              ))
+            : sheetPages.map((page, pageIndex) => (
+                <div key={pageIndex} className="sheet-page letter-page">
+                  {page.map((section) => (
+                    <SheetSection
+                      key={section.order.id}
+                      section={section}
+                      batches={batches}
+                      barcodes={barcodes}
+                    />
+                  ))}
+                </div>
               ))}
-            </div>
-          ))}
         </div>
       </div>
     </div>
