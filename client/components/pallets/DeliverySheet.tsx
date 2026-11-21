@@ -130,7 +130,7 @@ function SheetSection({ section, batches }: { section: DeliverySheetSection; bat
   );
 }
 
-const SHEETS_PER_PAGE = 4;
+const SHEETS_PER_PAGE = 6;
 const CARDS_PER_PAGE = 4;
 
 export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
@@ -235,27 +235,29 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
               .sheet-page.letter-page {
                 display: grid !important;
                 grid-template-columns: 1fr 1fr;
-                grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-                gap: 0.15in;
+                grid-template-rows: repeat(3, minmax(0, 1fr));
+                gap: 0.12in;
                 box-sizing: border-box;
-                padding: 0.4in;
+                padding: 0.35in;
                 height: 10.95in;
                 break-after: page;
               }
               .sheet-page.letter-page:last-child { break-after: auto; }
               .sheet-page.letter-page .order-section {
                 border: 1px solid #000;
-                padding: 0.1in;
+                padding: 0.08in;
                 box-sizing: border-box;
                 overflow: hidden;
                 min-width: 0;
               }
-              .sheet-page.letter-page .sheet-header img { height: 0.4in !important; }
+              .sheet-page.letter-page .sheet-header img { height: 0.3in !important; }
               .sheet-page.letter-page .label-card { padding: 0.04in !important; gap: 0.02in !important; }
               .sheet-page.letter-page .label-card img { height: 0.5in !important; width: auto !important; max-width: 100%; }
-              .sheet-page.letter-page .pick-list { margin-top: 0.08in !important; }
-              .sheet-page.letter-page .text-lg { font-size: 11pt; }
-              .sheet-page.letter-page .text-xs, .sheet-page.letter-page .text-2xs { font-size: 7pt; }
+              .sheet-page.letter-page .pick-list { margin-top: 0.06in !important; }
+              .sheet-page.letter-page .text-lg { font-size: 10pt; }
+              .sheet-page.letter-page .text-xs { font-size: 6.5pt; }
+              .sheet-page.letter-page .text-2xs { font-size: 6pt; }
+              .sheet-page.letter-page .text-sm { font-size: 7.5pt; }
               .card-page {
                 display: grid !important;
                 grid-template-columns: repeat(2, minmax(0, 5in));
