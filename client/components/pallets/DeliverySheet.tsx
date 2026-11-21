@@ -279,7 +279,7 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
                 box-sizing: border-box;
                 justify-content: center;
               }
-              .card-page .label-card img { height: 0.7in !important; width: 85% !important; max-width: none !important; object-fit: fill; }
+              .card-page .label-card img { height: 1in !important; width: 92% !important; max-width: none !important; object-fit: fill; }
               .card-page .text-xs { font-size: 6.5pt; }
               .card-page .text-2xs { font-size: 5.5pt; }
               .no-print { display: none !important; }
