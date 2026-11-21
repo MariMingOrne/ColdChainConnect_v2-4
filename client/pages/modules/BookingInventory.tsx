@@ -233,6 +233,16 @@ export function BookingInventory() {
   const advanceableCount = visiblePallets.filter(canAdvancePallet).length;
 
   const selected = entries.find((entry) => entry.pallet.id === selectedPalletId) ?? null;
+  const selectedDelivery = selected
+    ? deliveries.find((delivery) =>
+        (delivery.delivery_items ?? []).some((item) =>
+          invoices.some((invoice) => invoice.id === item.invoice_id && invoice.booking_id === selected.pallet.order_id),
+        ),
+      ) ?? null
+    : null;
+  const selectedTruck = selected
+    ? trucks.find((truck) => truck.id === (selected.pallet.truck_id ?? selectedDelivery?.truck_id)) ?? null
+    : null;
 
   const checkedPallets = visiblePallets.filter((pallet) => checkedPalletIds.has(pallet.id));
 
@@ -298,6 +308,8 @@ export function BookingInventory() {
           pallet={selected.pallet}
           order={bookings.find((b) => b.id === selected.pallet.order_id) ?? null}
           customer={selected.customer}
+          delivery={selectedDelivery}
+          truck={selectedTruck}
           batches={batches}
           getProductName={getProductName}
           canChangeStatus={canUpdatePalletStatus}
