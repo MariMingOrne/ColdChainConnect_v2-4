@@ -298,12 +298,12 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
               .card-page .label-card {
                 width: 5in !important;
                 height: 3in !important;
-                border: 0 !important;
-                padding: 0.15in !important;
+                border: 1px solid #000 !important;
+                padding: 0.12in !important;
                 box-sizing: border-box;
                 justify-content: center;
               }
-              .card-page .label-card img { height: 1.5in !important; width: auto !important; max-width: 100%; }
+              .card-page .label-card img { height: 1in !important; width: 85% !important; max-width: none !important; object-fit: fill; }
               .no-print { display: none !important; }
               .label-card { break-inside: avoid; color: #111 !important; background: #fff !important; }
             }
