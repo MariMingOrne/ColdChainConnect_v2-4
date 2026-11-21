@@ -88,15 +88,7 @@ function PalletLabel({
   );
 }
 
-function SheetSection({
-  section,
-  batches,
-  barcodes,
-}: {
-  section: DeliverySheetSection;
-  batches: InventoryBatch[];
-  barcodes: Record<string, string>;
-}) {
+function SheetSection({ section, batches }: { section: DeliverySheetSection; batches: InventoryBatch[] }) {
   const { order, pallets } = section;
   const pickLines = usePickLines(section, batches);
   const orderBarcode = useMemo(() => barcodeDataUrl(order.id), [order.id]);
@@ -134,22 +126,6 @@ function SheetSection({
         </table>
       </section>
 
-      <section className="label-section mt-4">
-        <h2 className="mb-1 text-sm font-bold">Pallet Labels</h2>
-        <div className="label-grid grid grid-cols-1 gap-2">
-          {pallets.map((pallet, index) => (
-            <PalletLabel
-              key={pallet.id}
-              pallet={pallet}
-              index={index}
-              total={pallets.length}
-              storeName={storeName}
-              deliveryDate={deliveryDate}
-              barcode={barcodes[pallet.id]}
-            />
-          ))}
-        </div>
-      </section>
     </div>
   );
 }
@@ -278,9 +254,6 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
               .sheet-page.letter-page .label-card { padding: 0.04in !important; gap: 0.02in !important; }
               .sheet-page.letter-page .label-card img { height: 0.5in !important; width: auto !important; max-width: 100%; }
               .sheet-page.letter-page .pick-list { margin-top: 0.08in !important; }
-              .sheet-page.letter-page .label-section { margin-top: 0.08in !important; }
-              .sheet-page.letter-page .label-section h2 { margin-bottom: 0.02in !important; }
-              .sheet-page.letter-page .label-grid { grid-template-columns: 1fr 1fr !important; gap: 0.05in !important; }
               .sheet-page.letter-page .text-lg { font-size: 11pt; }
               .sheet-page.letter-page .text-xs, .sheet-page.letter-page .text-2xs { font-size: 7pt; }
               .card-page {
@@ -332,7 +305,6 @@ export function DeliverySheet({ sections, batches }: DeliverySheetProps) {
                       key={section.order.id}
                       section={section}
                       batches={batches}
-                      barcodes={barcodes}
                     />
                   ))}
                 </div>
