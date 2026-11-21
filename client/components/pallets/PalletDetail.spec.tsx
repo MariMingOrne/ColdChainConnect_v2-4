@@ -43,6 +43,6 @@ describe("PalletDetail status controls", () => {
     renderDetail(false);
     expect(screen.queryByRole("button", { name: /Mark as/ })).toBeNull();
     expect(screen.queryByRole("button", { name: "More status actions" })).toBeNull();
-    expect(screen.getByRole("button", { name: "Print delivery sheet" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Shipping label" })).toBeTruthy();
   });
 });
